@@ -47,4 +47,4 @@ console.log(await db1.all())
 
 ## License
 
-[MIT](LICENSE) © 2024 OrbitDB Community
+[MIT](LICENSE) © 2025 OrbitDB Community
