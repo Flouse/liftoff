@@ -1,0 +1,27 @@
+{
+  "name": "orbitdb-custom-store-tests",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@chainsafe/libp2p-gossipsub": "^14.1.1",
+    "@chainsafe/libp2p-noise": "^16.1.0",
+    "@chainsafe/libp2p-yamux": "^7.0.1",
+    "@libp2p/identify": "^3.0.27",
+    "@libp2p/mdns": "^11.0.32",
+    "@libp2p/tcp": "^10.1.8",
+    "@orbitdb/core": "^2.5.0",
+    "blockstore-level": "^2.0.1",
+    "chai": "^5.2.0",
+    "helia": "^5.3.0",
+    "libp2p": "^2.8.2",
+    "mocha": "^11.1.0"
+  }
+}
