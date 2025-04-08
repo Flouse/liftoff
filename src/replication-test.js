@@ -1,19 +1,41 @@
 import { createLibp2p } from 'libp2p'
+import { generateKeyPair } from '@libp2p/crypto/keys'
+import { peerIdFromPrivateKey } from '@libp2p/peer-id'
 import { createHelia } from 'helia'
 import { LevelBlockstore } from 'blockstore-level'
 import { createOrbitDB } from '@orbitdb/core'
 import { Libp2pOptions } from '../config/libp2p.js'
 
 // Our ipfs instances will be connecting over tcp. You can find out more about peer connectivity at https://connectivity.libp2p.io/.
-const initIPFSInstance = async (dir) => {
+const initIPFSInstance = async (dir, peerId) => {
   const blockstore = new LevelBlockstore(dir)
-  const libp2p = await createLibp2p(Libp2pOptions)
+  // Create a copy of the options and add the peerId
+  const libp2pConfig = { ...Libp2pOptions, peerId }
+  const libp2p = await createLibp2p(libp2pConfig)
   return createHelia({ libp2p, blockstore })
 }
 
 const run = async () => {
-  const ipfs1 = await initIPFSInstance('./data/ipfs1')
-  const ipfs2 = await initIPFSInstance('./data/ipfs2')
+  // Generate distinct Peer IDs for each instance
+  const privateKey1 = await generateKeyPair('Ed25519')
+  const peerId1 = await peerIdFromPrivateKey(privateKey1)
+
+  const privateKey2 = await generateKeyPair('Ed25519')
+  const peerId2 = await peerIdFromPrivateKey(privateKey2)
+
+  const ipfs1 = await initIPFSInstance('./data/ipfs1', peerId1)
+  console.log(`IPFS1 PeerId: ${ipfs1.libp2p.peerId.toString()}`);
+  console.log(`IPFS1 multiaddr: ${ipfs1.libp2p.getMultiaddrs()}`);
+
+  const ipfs2 = await initIPFSInstance('./data/ipfs2', peerId2)
+  console.log(`IPFS2 PeerId: ${ipfs2.libp2p.peerId.toString()}`);
+  console.log(`IPFS2 multiaddr: ${ipfs2.libp2p.getMultiaddrs()}`);
+
+  // The decentralized nature if IPFS can make it slow for peers to find one 
+  // another. You can speed up a connection between two peers by "dialling-in"
+  // to one peer from another.
+  // await ipfs2.libp2p.safeDispatchEvent(ipfs1.libp2p.peerId, { multiaddr: ipfs1.libp2p.getMultiaddrs() })
+  await ipfs2.libp2p.dial(ipfs1.libp2p.getMultiaddrs()[0])
 
   const orbitdb1 = await createOrbitDB({ ipfs: ipfs1, id: 'userA', directory: './data/orbitdb1' })
   const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'userB', directory: './data/orbitdb2' })
@@ -32,7 +54,7 @@ const run = async () => {
   // listener to db1.
   db2.events.on('join', async (peerId, heads) => {
     // The peerId of the ipfs1 node.
-    console.log("Joined", peerId, (await ipfs1.id()).id)
+    console.log("Joined", peerId, ipfs1.libp2p.peerId.toString())
   })
 
   // Listen for any updates to db2.
