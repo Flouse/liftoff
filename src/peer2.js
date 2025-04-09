@@ -4,6 +4,7 @@ import { LevelBlockstore } from 'blockstore-level'
 import { createOrbitDB } from '@orbitdb/core'
 import { Libp2pOptions } from '../config/libp2p.js'
 import fs from 'fs'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
@@ -16,8 +17,8 @@ const initIPFSInstance = async (dir) => {
 
 const run = async () => {
   // Read the multiaddr from file
-  const peer1Multiaddr = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
-  console.log(`Peer 2: Read peer1 multiaddr from ${PEER1_MULTIADDR_FILE}: ${peer1Multiaddr}`)
+  const peer1MultiaddrString = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
+  console.log(`Peer 2: Read peer1 multiaddr string from ${PEER1_MULTIADDR_FILE}: ${peer1MultiaddrString}`)
 
   const peer1DbAddress = fs.readFileSync(PEER1_DB_ADDRESS_FILE, 'utf8').trim()
   console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
@@ -27,6 +28,7 @@ const run = async () => {
   const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory: orbitdbDir })
 
   try {
+    const peer1Multiaddr = multiaddr(peer1MultiaddrString)
     await ipfs2.libp2p.dial(peer1Multiaddr)
     console.log('Peer 2: Dialed peer 1')
   } catch (err) {
