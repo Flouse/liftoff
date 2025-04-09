@@ -20,6 +20,7 @@ const run = async () => {
 
   try {
     const peer1Multiaddr = multiaddr(peer1MultiaddrString)
+    console.log('Peer 2: Dialing peer 1 multiaddr:', peer1Multiaddr.toString());
     await ipfs2.libp2p.dial(peer1Multiaddr)
     console.log('Peer 2: Dialed peer 1')
   } catch (err) {

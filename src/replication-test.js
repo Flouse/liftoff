@@ -43,11 +43,10 @@ const run = async () => {
     console.log("Updated", entry)
   })
 
-  // We write some data to db1. This will automatically replicated on db2
-  await db1.add('hello world 1')
-  await db1.add('hello world 2')
-  await db1.add('hello world 3')
-  await db1.add('hello world 4')
+  // We write 100 records to db1. This will automatically replicate on db2
+  for (let i = 1; i <= 100; i++) {
+    await db1.add(`record ${i}`)
+  }
 
   // wait for db2 to complete updating.
   await new Promise((resolve, reject) => {
