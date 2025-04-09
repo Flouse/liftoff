@@ -1,33 +1,12 @@
-import { createLibp2p } from 'libp2p'
-import { generateKeyPair } from '@libp2p/crypto/keys'
-import { peerIdFromPrivateKey } from '@libp2p/peer-id'
-import { createHelia } from 'helia'
-import { LevelBlockstore } from 'blockstore-level'
+import { initIPFSInstance } from "./config/libp2p.js";
 import { createOrbitDB } from '@orbitdb/core'
-import { Libp2pOptions } from '../config/libp2p.js'
-
-// Our ipfs instances will be connecting over tcp. You can find out more about peer connectivity at https://connectivity.libp2p.io/.
-const initIPFSInstance = async (dir, peerId) => {
-  const blockstore = new LevelBlockstore(dir)
-  // Create a copy of the options and add the peerId
-  const libp2pConfig = { ...Libp2pOptions, peerId }
-  const libp2p = await createLibp2p(libp2pConfig)
-  return createHelia({ libp2p, blockstore })
-}
 
 const run = async () => {
-  // Generate distinct Peer IDs for each instance
-  const privateKey1 = await generateKeyPair('Ed25519')
-  const peerId1 = await peerIdFromPrivateKey(privateKey1)
-
-  const privateKey2 = await generateKeyPair('Ed25519')
-  const peerId2 = await peerIdFromPrivateKey(privateKey2)
-
-  const ipfs1 = await initIPFSInstance('./data/ipfs1', peerId1)
+  const ipfs1 = await initIPFSInstance('./data/ipfs1')
   console.log(`IPFS1 PeerId: ${ipfs1.libp2p.peerId.toString()}`);
   console.log(`IPFS1 multiaddr: ${ipfs1.libp2p.getMultiaddrs()}`);
 
-  const ipfs2 = await initIPFSInstance('./data/ipfs2', peerId2)
+  const ipfs2 = await initIPFSInstance('./data/ipfs2')
   console.log(`IPFS2 PeerId: ${ipfs2.libp2p.peerId.toString()}`);
   console.log(`IPFS2 multiaddr: ${ipfs2.libp2p.getMultiaddrs()}`);
 

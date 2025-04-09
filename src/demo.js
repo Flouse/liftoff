@@ -2,7 +2,7 @@ import { createLibp2p } from 'libp2p'
 import { createHelia } from 'helia'
 import { createOrbitDB } from '@orbitdb/core'
 import { LevelBlockstore } from 'blockstore-level'
-import { Libp2pOptions } from '../config/libp2p.js' // Adjusted path
+import { Libp2pOptions } from './config/libp2p.js'
 
 const main = async () => {
   // Create an IPFS instance.

@@ -2,7 +2,7 @@ import { createLibp2p } from 'libp2p'
 import { createHelia } from 'helia'
 import { LevelBlockstore } from 'blockstore-level'
 import { createOrbitDB } from '@orbitdb/core'
-import { Libp2pOptions } from '../config/libp2p.js'
+import { Libp2pOptions } from './config/libp2p.js'
 import fs from 'fs'
 import { multiaddr } from '@multiformats/multiaddr'
 
