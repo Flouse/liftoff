@@ -1,20 +1,9 @@
 import { createOrbitDB } from '@orbitdb/core'
-import { LevelBlockstore } from 'blockstore-level'
 import fs from 'fs'
-import { createHelia } from 'helia'
-import { createLibp2p } from 'libp2p'
-import { initIPFSInstance } from './config/ipfs.js'
-import { Libp2pOptions } from './config/libp2p.js'
+import { initIPFSInstance } from './config/libp2p.js'
 
 const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
-
-// TODO: move this to a config file
-const initIPFSInstance = async (dir) => {
-  const blockstore = new LevelBlockstore(dir)
-  const libp2p = await createLibp2p(Libp2pOptions)
-  return createHelia({ libp2p, blockstore })
-}
 
 const run = async () => {
   const ipfs1 = await initIPFSInstance('./data/ipfs11')
