@@ -31,6 +31,7 @@ const run = async () => {
     // Open database as a documents store
     const options = { type: 'documents' }
     let db = await orbitdb.open(dbName, options);
+    // TODO: accessController: { write: ['*']}
 
     if (!db) {
       console.error('Failed to open database');
@@ -51,9 +52,10 @@ const run = async () => {
       const billboardData = await response.json();
 
       // Add each record to the database
+      const INDEX_BY = '_id';
       for (const record of billboardData) {
         try {
-          record._id = record.id; // Set _id to id for OrbitDB index
+          record[INDEX_BY] = record.id + 1; // Set _id to id for OrbitDB index
           await db.put(record);
         } catch (e) {
           console.error("error putting record", record, e)
