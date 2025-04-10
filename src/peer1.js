@@ -26,7 +26,7 @@ const run = async () => {
   setTimeout(async () => {
     await db1.add('hello world from peer 1 - 1')
     await db1.add('hello world from peer 1 - 2')
-  console.log('Peer 1 added data')
+    console.log('Peer 1 added data')
   }, 3000) // 3 seconds
 
   console.log('Peer 1 is active and ready for connections...')

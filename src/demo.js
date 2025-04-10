@@ -15,9 +15,9 @@ const main = async () => {
   const ipfs = await createHelia({ libp2p, blockstore })
 
   // Use a unique directory for OrbitDB data
-  const orbitdbDir = `./data/orbitdb-${Date.now()}`
-  console.log(`Using OrbitDB directory: ${orbitdbDir}`)
-  const orbitdb = await createOrbitDB({ ipfs, directory: orbitdbDir })
+  const directory = `./data/orbitdb-${Date.now()}`
+  console.log(`Using OrbitDB directory: ${directory}`)
+  const orbitdb = await createOrbitDB({ ipfs, directory })
 
   const db = await orbitdb.open('my-db') // Default type is 'events'
   console.log('my-db address:', db.address)

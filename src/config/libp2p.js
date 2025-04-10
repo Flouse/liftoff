@@ -39,6 +39,8 @@ export const Libp2pOptions = {
  * @returns {Promise<Helia>} The initialized Helia instance.
  */
 export const initIPFSInstance = async (dir, peerId) => {
+  // TODO: check the default value of createLibp2p's options.privateKey
+  // see https://github.com/libp2p/js-libp2p/blob/e4f603f51603810440d43e92718e666f164571bb/packages/libp2p/src/index.ts#L199-L201
   if (peerId == null) {
     const keyPair = await generateKeyPair('Ed25519')
     peerId = await peerIdFromPrivateKey(keyPair)

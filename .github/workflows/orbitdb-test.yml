@@ -1,0 +1,43 @@
+name: OrbitDB Test
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # TOOD: run 1 ~ 6 hours
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cache OrbitDB data
+        uses: actions/cache/restore@v4
+        id: orbitdb-cache
+        with:
+          path: |
+            ./data/ipfs-composed-test
+            ./data/orbitdb-composed
+          key: orbitdb-data-cache
+
+      - name: Run test
+        run: node src/composed-storage-test.js
+
+      - name: Save OrbitDB data (always)
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ./data/ipfs-composed-test
+            ./data/orbitdb-composed
+          key: orbitdb-data-cache
