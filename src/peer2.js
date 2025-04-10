@@ -51,6 +51,11 @@ const run = async () => {
     }, 1000)
   })
 
+  // Print out the above records.
+  console.log('Retrieving all records from Peer2...')
+  const allRecords = await db2.all()
+  console.log(allRecords)
+
   console.log('Peer 2: Replication successful!')
   process.exit(0)
 }
