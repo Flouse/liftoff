@@ -1,5 +1,7 @@
-import { ComposedStorage, createOrbitDB, IPFSBlockStorage, LRUStorage } from '@orbitdb/core';
-import { assert } from 'chai';
+import { dagCbor } from '@helia/dag-cbor';
+import { createOrbitDB, parseAddress } from '@orbitdb/core';
+import { base58btc } from 'multiformats/bases/base58';
+import { CID } from 'multiformats/cid';
 import { initIPFSInstance } from "./config/libp2p.js";
 
 const run = async () => {
@@ -39,6 +41,13 @@ const run = async () => {
     }
 
     console.log(`Opened database at: ${db.address}`);
+
+    // Get the db address.
+    const addr = parseAddress(db.address)
+    const cid = CID.parse(addr.hash, base58btc)
+    const d = dagCbor(ipfs)
+    const value = await d.get(cid);
+    console.log('manifest', value);
 
     // Check if data already exists
     const existingData = await db.get(0);
