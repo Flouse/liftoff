@@ -66,42 +66,16 @@ const run = async () => {
       console.log('Database already contains data, skipping data insertion.');
     }
 
+    // Print out the above records.
+    console.log('Retrieving all records...')
+    const allRecords = await db.all()
+    console.log(allRecords)
+
     // Close database and OrbitDB
     await db.close();
     await orbitdb.stop();
     await ipfs.stop();
     console.log('Closed database and IPFS');
-
-    // Re-initialize IPFS and OrbitDB
-    // const ipfs2 = await initIPFSInstance(ipfsDirectory, undefined);
-
-    // Create ComposedStorage for the reopened instance
-    // const ipfsBlockStorage2 = new IPFSBlockStorage({ ipfs: ipfs2 });
-    // const lruStorage2 = new LRUStorage();
-    // const composedStorage2 = new ComposedStorage({
-    //   stores: [
-    //     ipfsBlockStorage2,
-    //     lruStorage2
-    //   ]
-    // })
-
-    // const orbitdb2 = await createOrbitDB({ ipfs: ipfs2 });
-    // orbitdb2.storage = composedStorage2
-
-    // Reopen database
-    // const db2 = await orbitdb2.open(dbName, options);
-    // console.log(`Reopened database at: ${db2.address}`);
-
-    // Verify data
-    // const retrievedValue = await db2.get(0);
-    // assert.exists(retrievedValue, 'Retrieved value should exist');
-    // console.log('Retrieved data:', retrievedValue);
-
-    // Clean up
-    // await db2.close();
-    // await orbitdb2.stop();
-    // await ipfs2.stop();
-
     process.exit(0);
   } catch (error) {
     console.error('Test failed:', error);
