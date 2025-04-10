@@ -8,11 +8,6 @@ on:
 jobs:
   basic-test:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [ '22.x', '20.x' ]
-
     steps:
     - uses: actions/checkout@v4
     - uses: oven-sh/setup-bun@v2
