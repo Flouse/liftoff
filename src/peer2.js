@@ -15,8 +15,8 @@ const run = async () => {
   console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
 
   const ipfs2 = await initIPFSInstance('./data/ipfs12')
-  const orbitdbDir = `./data/orbitdb-${Date.now()}`
-  const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory: orbitdbDir })
+  const directory = `./data/orbitdb-${Date.now()}`
+  const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory })
 
   try {
     const peer1Multiaddr = multiaddr(peer1MultiaddrString)
