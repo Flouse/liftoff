@@ -6,7 +6,7 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  basic-test:
     runs-on: ubuntu-latest
 
     strategy:
@@ -15,12 +15,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
-    - name: Install Dependencies
-      run: npm ci
-    - name: Run Tests
-      run: npm test
+    - uses: oven-sh/setup-bun@v2
+    - run: bun install
+    - run: bun test
+    - name: basic-replication-test
+      run: bun src/replication-test.js

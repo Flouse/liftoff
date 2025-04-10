@@ -1,6 +1,5 @@
 import { multiaddr } from '@multiformats/multiaddr'
 import { createOrbitDB } from '@orbitdb/core'
-import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
 
 const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
@@ -8,15 +7,15 @@ const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
 
 const run = async () => {
   // Read the multiaddr from file
-  const peer1MultiaddrString = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
+  const peer1MultiaddrString = (await Bun.file(PEER1_MULTIADDR_FILE).text()).trim().split('\n')[0]
   console.log(`Peer 2: Read peer1 multiaddr string from ${PEER1_MULTIADDR_FILE}: ${peer1MultiaddrString}`)
 
-  const peer1DbAddress = fs.readFileSync(PEER1_DB_ADDRESS_FILE, 'utf8').trim()
+  const peer1DbAddress = (await Bun.file(PEER1_DB_ADDRESS_FILE).text()).trim()
   console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
 
   const ipfs2 = await initIPFSInstance('./data/ipfs12', undefined)
-  const orbitdbDir = `./data/orbitdb-${Date.now()}`
-  const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory: orbitdbDir })
+  const directory = `./data/orbitdb-${Date.now()}`
+  const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory })
 
   try {
     const peer1Multiaddr = multiaddr(peer1MultiaddrString)
