@@ -7,8 +7,8 @@ const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
 
 const run = async () => {
   const ipfs1 = await initIPFSInstance('./data/ipfs11')
-  const orbitdbDir = `./data/orbitdb-${Date.now()}`
-  const orbitdb1 = await createOrbitDB({ ipfs: ipfs1, id: 'peer1', directory: orbitdbDir })
+  const directory = `./data/orbitdb-${Date.now()}`
+  const orbitdb1 = await createOrbitDB({ ipfs: ipfs1, id: 'peer1', directory })
   const db1 = await orbitdb1.open('peer1-db-2025')
 
   // Write the peer's multiaddrs to a file
@@ -29,8 +29,17 @@ const run = async () => {
   console.log('Peer 1 added data')
   }, 3000) // 3 seconds
 
-  // Keep the process running
-  console.log('Peer 1 running, waiting for connections...')
+  console.log('Peer 1 is active and ready for connections...')
+
+  // Keep the process running for 10 seconds, then close
+  setTimeout(async () => {
+    console.log('Peer 1: Closing database and stopping services...')
+    await db1.close()
+    await orbitdb1.stop()
+    await ipfs1.stop()
+    console.log('Peer 1: Done.')
+    process.exit(0)
+  }, 10000)
 }
 
 run().catch((e) => {
