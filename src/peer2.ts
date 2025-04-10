@@ -14,7 +14,7 @@ const run = async () => {
   const peer1DbAddress = fs.readFileSync(PEER1_DB_ADDRESS_FILE, 'utf8').trim()
   console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
 
-  const ipfs2 = await initIPFSInstance('./data/ipfs12')
+  const ipfs2 = await initIPFSInstance('./data/ipfs12', undefined)
   const orbitdbDir = `./data/orbitdb-${Date.now()}`
   const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory: orbitdbDir })
 
@@ -31,10 +31,10 @@ const run = async () => {
   const db2 = await orbitdb2.open(peer1DbAddress)
 
   let db2Updated = false
-  db2.events.on('update', async (entry) => {
+  db2.events.on('update', async (entry: any) => {
     db2Updated = true
     console.log('Peer 2: Database updated', entry)
-  })
+  });
 
   // Wait for the database to update, with a timeout
   await new Promise((resolve, reject) => {
@@ -46,7 +46,7 @@ const run = async () => {
       if (db2Updated) {
         clearTimeout(timeout)
         clearInterval(checkInterval)
-        resolve()
+        resolve(undefined)
       }
     }, 1000)
   })

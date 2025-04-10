@@ -5,6 +5,7 @@ import { generateKeyPair } from '@libp2p/crypto/keys'
 import { identify } from '@libp2p/identify'
 import { mdns } from '@libp2p/mdns'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
+import type { PeerId } from '@libp2p/interface'
 import { tcp } from '@libp2p/tcp'
 import { LevelBlockstore } from 'blockstore-level'
 import { createHelia } from 'helia'
@@ -38,7 +39,7 @@ export const Libp2pOptions = {
  *
  * @returns {Promise<Helia>} The initialized Helia instance.
  */
-export const initIPFSInstance = async (dir, peerId) => {
+export const initIPFSInstance = async (dir: string, peerId: PeerId | undefined) => {
   if (peerId == null) {
     const keyPair = await generateKeyPair('Ed25519')
     peerId = await peerIdFromPrivateKey(keyPair)

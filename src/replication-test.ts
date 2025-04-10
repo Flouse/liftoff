@@ -2,11 +2,11 @@ import { initIPFSInstance } from "./config/libp2p.js";
 import { createOrbitDB } from '@orbitdb/core'
 
 const run = async () => {
-  const ipfs1 = await initIPFSInstance('./data/ipfs1')
+  const ipfs1 = await initIPFSInstance('./data/ipfs1', undefined)
   console.log(`IPFS1 PeerId: ${ipfs1.libp2p.peerId.toString()}`);
   console.log(`IPFS1 multiaddr: ${ipfs1.libp2p.getMultiaddrs()}`);
 
-  const ipfs2 = await initIPFSInstance('./data/ipfs2')
+  const ipfs2 = await initIPFSInstance('./data/ipfs2', undefined)
   console.log(`IPFS2 PeerId: ${ipfs2.libp2p.peerId.toString()}`);
   console.log(`IPFS2 multiaddr: ${ipfs2.libp2p.getMultiaddrs()}`);
 
@@ -31,17 +31,17 @@ const run = async () => {
   // Listen for the connection of ipfs1 to ipfs2.
   // If we want to listen for connections from ipfs2 to ipfs1, add a "join"
   // listener to db1.
-  db2.events.on('join', async (peerId, heads) => {
+  db2.events.on('join', async (peerId: any, heads: any) => {
     // The peerId of the ipfs1 node.
     console.log("Joined", peerId, ipfs1.libp2p.peerId.toString())
-  })
+  });
 
   // Listen for any updates to db2.
   // If we want to listen for new data on db2, add an "update" listener to db1.
-  db2.events.on('update', async (entry) => {
+  db2.events.on('update', async (entry: any) => {
     db2Updated = true
     console.log("Updated", entry)
-  })
+  });
 
   // We write 100 records to db1. This will automatically replicate on db2
   for (let i = 1; i <= 100; i++) {
@@ -56,7 +56,7 @@ const run = async () => {
     setInterval(() => {
       if (db2Updated) {
         clearTimeout(timeout)
-        resolve()
+        resolve(undefined)
       }
     }, 1000)
   })
