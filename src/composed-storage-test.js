@@ -69,7 +69,7 @@ const run = async () => {
     // Print out the above records.
     console.log('Retrieving all records...')
     const allRecords = await db.all()
-    console.log(allRecords)
+    console.log(allRecords.slice(-10)); // Print the last 10 records
 
     // Close database and OrbitDB
     await db.close();
