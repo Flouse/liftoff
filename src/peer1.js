@@ -32,14 +32,14 @@ const run = async () => {
   console.log('Peer 1 is active and ready for connections...')
 
   // Keep the process running for 10 seconds, then close
-  setTimeout(async () => {
-    console.log('Peer 1: Closing database and stopping services...')
-    await db1.close()
-    await orbitdb1.stop()
-    await ipfs1.stop()
-    console.log('Peer 1: Done.')
-    process.exit(0)
-  }, 10000)
+  // setTimeout(async () => {
+  //   console.log('Peer 1: Closing database and stopping services...')
+  //   await db1.close()
+  //   await orbitdb1.stop()
+  //   await ipfs1.stop()
+  //   console.log('Peer 1: Done.')
+  //   process.exit(0)
+  // }, 10000)
 }
 
 run().catch((e) => {
