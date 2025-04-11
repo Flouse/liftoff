@@ -1,8 +1,11 @@
 import { dagCbor } from '@helia/dag-cbor';
-import { createOrbitDB, parseAddress } from '@orbitdb/core';
+import { createOrbitDB, IPFSAccessController, parseAddress } from '@orbitdb/core';
+import * as dotenv from 'dotenv'; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 import { base58btc } from 'multiformats/bases/base58';
 import { CID } from 'multiformats/cid';
 import { initIPFSInstance } from "./config/libp2p.js";
+
+dotenv.config()
 
 const run = async () => {
   const ipfsDirectory = './data/ipfs-composed-test'
@@ -31,9 +34,14 @@ const run = async () => {
     const orbitdb = await createOrbitDB({ ipfs, directory: orbitdbDirectory });
 
     // Open database as a documents store
-    const options = { type: 'documents' }
-    let db = await orbitdb.open(dbName, options);
-    // TODO: accessController: { write: ['*']}
+    const options = {
+      type: 'documents',
+      AccessController: IPFSAccessController({ write: ['*'] })
+    }
+    const dbAddressFromEnv = process.env.ORBITDB_ADDRESS;
+    const dbIdentifier = dbAddressFromEnv || dbName;
+    console.log(`Attempting to open database: ${dbIdentifier}`);
+    let db = await orbitdb.open(dbIdentifier, options);
 
     if (!db) {
       console.error('Failed to open database');
@@ -41,12 +49,10 @@ const run = async () => {
     }
 
     console.log(`Opened database at: ${db.address}`);
-
-    // Get the db address.
     const addr = parseAddress(db.address)
     const cid = CID.parse(addr.hash, base58btc)
-    const d = dagCbor(ipfs)
-    const value = await d.get(cid);
+    console.log('cid', cid.toString());
+    const value = await dagCbor(ipfs).get(cid);
     console.log('manifest', value);
 
     // Check if data already exists
@@ -78,9 +84,23 @@ const run = async () => {
     // Print out the above records.
     console.log('Retrieving all records...')
     const allRecords = await db.all()
-    console.log(allRecords.slice(-10)); // Print the last 10 records
+    console.log(allRecords.slice(-3)); // Print the last 3 records
 
-    // Close database and OrbitDB
+    db.events.on('join', (peerID, heads) => {
+      console.log(`New peer joined: ${peerID.toString()}`);
+      console.log('Heads:', heads);
+    });
+
+    // sleep for 1 hour
+    console.log('Sleeping for 1 hour...');
+    await new Promise(resolve => setTimeout(resolve, 3600000));
+
+    // print connections
+    const connections = ipfs.libp2p.getConnections();
+    console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
+    console.log('Number of connections:', connections.length);
+
+    console.log('Closing database and OrbitDB...');
     await db.close();
     await orbitdb.stop();
     await ipfs.stop();
