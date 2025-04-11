@@ -64,44 +64,41 @@ const run = async () => {
       }
       const billboardData = await response.json();
 
-      // Add each record to the database
-      const INDEX_BY = '_id';
-      for (const record of billboardData) {
-        try {
-          record[INDEX_BY] = record.id + 1; // Set _id to id for OrbitDB index
-          await db.put(record);
-        } catch (e) {
-          console.error("error putting record", record, e)
-        }
-      }
-      console.log(`Added ${billboardData.length} records to the database`);
+      // TODO: Add more records to the database
+      // const INDEX_BY = '_id';
+      // for (const record of billboardData) {
+      //   try {
+      //     record[INDEX_BY] = record.id + 1; // Set _id to id for OrbitDB index
+      //     await db.put(record);
+      //   } catch (e) {
+      //     console.error("error putting record", record, e)
+      //   }
+      // }
+      // console.log(`Added ${billboardData.length} records to the database`);
     } else {
       console.log('Database already contains data, skipping data insertion.');
     }
-
-    // Print out the above records.
-    console.log('Retrieving all records...')
-    const allRecords = await db.all()
-    console.log(allRecords.slice(-3)); // Print the last 3 records
 
     db.events.on('join', (peerID, heads) => {
       console.log(`New peer joined: ${peerID.toString()}`);
       console.log('Heads:', heads);
     });
+    
+    setInterval(async () => {
+      // print connections
+      const connections = ipfs.libp2p.getConnections();
+      console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
+      console.log('Number of connections:', connections.length);
+    }, 6000);
 
-    // print connections
-    let connections = ipfs.libp2p.getConnections();
-    console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
-    console.log('Number of connections:', connections.length);
+    console.log('Retrieving all records...')
+    const allRecords = await db.all()
+    console.log(allRecords.slice(-2));
+    console.log('Number of records:', allRecords.length);
 
     // sleep for 1 hour
     console.log('Sleeping for 1 hour...');
     await new Promise(resolve => setTimeout(resolve, 3600000));
-
-    // print connections
-    connections = ipfs.libp2p.getConnections();
-    console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
-    console.log('Number of connections:', connections.length);
 
     console.log('Closing database and OrbitDB...');
     await db.close();
