@@ -6,8 +6,8 @@ import { CID } from 'multiformats/cid';
 import { initIPFSInstance } from "./config/libp2p.js";
 
 const run = async () => {
-  const ipfsDirectory = './data/ipfs-composed-test'
-  const orbitdbDirectory = './data/orbitdb-composed'
+  const ipfsDirectory = './data/ipfs-composed-test';
+  const orbitdbDirectory = './data/orbitdb-composed';
   const dbName = 'billboard-charts';
 
   try {
@@ -89,12 +89,17 @@ const run = async () => {
       console.log('Heads:', heads);
     });
 
+    // print connections
+    let connections = ipfs.libp2p.getConnections();
+    console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
+    console.log('Number of connections:', connections.length);
+
     // sleep for 1 hour
     console.log('Sleeping for 1 hour...');
     await new Promise(resolve => setTimeout(resolve, 3600000));
 
     // print connections
-    const connections = ipfs.libp2p.getConnections();
+    connections = ipfs.libp2p.getConnections();
     console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
     console.log('Number of connections:', connections.length);
 
