@@ -15,7 +15,6 @@ import { kadDHT } from '@libp2p/kad-dht'
 import { ping } from '@libp2p/ping'
 
 
-
 export const Libp2pOptions = {
   peerDiscovery: [
     bootstrap({
@@ -28,10 +27,11 @@ export const Libp2pOptions = {
         "/dnsaddr/ny5.bootstrap.libp2p.io/p2p/QmQCU2EcMqAqQPR2i9bChDtGNJchTbq5TbXJJ16u19uLTa",
         "/dnsaddr/va1.bootstrap.libp2p.io/p2p/12D3KooWKnDdG3iXw9eTFijk3EWSunZcFi54Zka4wmtqtt6rPxc8",
 
-        // PUBLIC_BOOTSTRAP
-        "/ip4/35.220.212.56/tcp/4001/p2p/12D3KooWJ6MTkNM8Bu8DzNiRm1GY3Wqh8U8Pp1zRWap6xY3MvsNw",
+        // PUBLIC_BOOTSTRAP: mars.i.ipfs.io
         "/ip4/104.131.131.82/tcp/4001/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
         "/ip4/104.131.131.82/udp/4001/quic-v1/p2p/QmaCpDMGvV2BGHeYERUEnRQAwe3N8SzbUtfsmvsqQLuvuJ",
+
+        "/ip4/35.220.212.56/tcp/4001/p2p/12D3KooWJ6MTkNM8Bu8DzNiRm1GY3Wqh8U8Pp1zRWap6xY3MvsNw",
 
         // LIBP2P_BOOTSTRAP, FIXME: cannot resolve bootstrap.libp2p.io: Unknown host
         // "/dnsaddr/bootstrap.libp2p.io/p2p/12D3KooWQiJMV63WiHBbmdZr3jPrr7ZrH1WAM5VTiZ7bSk2fwzvm",

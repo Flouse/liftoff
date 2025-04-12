@@ -7,8 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # TOOD: run 1 ~ 6 hours
-    timeout-minutes: 60
+    timeout-minutes: 100
 
     steps:
       - uses: actions/checkout@v4
