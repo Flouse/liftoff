@@ -3,16 +3,18 @@ import { createOrbitDB, IPFSAccessController, parseAddress } from '@orbitdb/core
 import 'dotenv/config';
 import { base58btc } from 'multiformats/bases/base58';
 import { CID } from 'multiformats/cid';
-import { initIPFSInstance } from "./config/libp2p.js";
+import libp2pDefaults from './config/libp2p-defaults.js';
+import { createHelia } from 'helia'
 
 const run = async () => {
-  const ipfsDirectory = './data/ipfs-composed-test';
+  // const ipfsDirectory = './data/ipfs-composed-test';
   const orbitdbDirectory = './data/orbitdb-composed';
   const dbName = 'billboard-charts-1965-2015';
 
   try {
     // Initialize IPFS
-    const heliaNode = await initIPFSInstance(ipfsDirectory); // TODO: init the peerId
+    // const heliaNode = await initIPFSInstance(ipfsDirectory); // TODO: init the peerId
+    const heliaNode = await createHelia({ libp2p: libp2pDefaults });
     console.log(`IPFS PeerId: ${heliaNode.libp2p.peerId.toString()}`);
 
     const multiaddrs = heliaNode.libp2p.getMultiaddrs();
