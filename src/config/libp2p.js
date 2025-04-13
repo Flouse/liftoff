@@ -93,5 +93,16 @@ export const initIPFSInstance = async (dir, peerId) => {
   const blockstore = new LevelBlockstore(dir)
   const libp2pConfig = { ...Libp2pOptions, peerId }
   const libp2p = await createLibp2p(libp2pConfig)
+
+  libp2p.addEventListener('peer:discovery', (evt) => {
+    console.log('Discovered %s', evt.detail.id.toString()) // Log discovered peer
+  })
+  libp2p.addEventListener('peer:connect', (evt) => {
+    console.log('Connected to %s', evt.detail.toString()) // Log connected peer
+  })
+  libp2p.addEventListener('peer:disconnect', (evt) => {
+    console.log('Disconnected from %s', evt.detail.toString()) // Log disconnected peer
+  })
+
   return createHelia({ libp2p, blockstore })
 }
