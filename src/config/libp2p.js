@@ -1,16 +1,18 @@
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
-import { quic } from '@chainsafe/libp2p-quic'
+// import { quic } from '@chainsafe/libp2p-quic'
 import { yamux } from '@chainsafe/libp2p-yamux'
+import { autoNAT } from '@libp2p/autonat'
 import { bootstrap } from '@libp2p/bootstrap'
-import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
+import { circuitRelayServer, circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { generateKeyPair } from '@libp2p/crypto/keys'
 import { dcutr } from '@libp2p/dcutr'
 import { identify } from '@libp2p/identify'
 import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
+import { prefixLogger } from '@libp2p/logger'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
-import { tcp } from '@libp2p/tcp'
+// import { tcp } from '@libp2p/tcp'
 import { webSockets } from '@libp2p/websockets'
 import { LevelBlockstore } from 'blockstore-level'
 import { createHelia } from 'helia'
@@ -18,6 +20,7 @@ import { createLibp2p } from 'libp2p'
 
 
 export const Libp2pOptions = {
+  logger: prefixLogger('relay'),
   peerDiscovery: [
     bootstrap({
       list: [
@@ -49,26 +52,31 @@ export const Libp2pOptions = {
     ]
   },
   transports: [
-    tcp(),
-    webSockets(),
     // allows libp2p to function as a Circuit Relay server. This will not work in browsers.
-    circuitRelayTransport(),
-    quic()
+    circuitRelayTransport({
+      discover: true
+    }),
+    webSockets(), // ws needed to connect to relay
+    // tcp(),
+    // quic()
   ],
   connectionEncrypters: [noise()],
   streamMuxers: [yamux()],
   services: {
     identify: identify(),
     pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
-    // Direct Connection Upgrade through Relay (DCUtR)
-    // allows two nodes to connect to each other who would otherwise be prevented doing so due to
-    // being behind NATed connections or firewalls.
-    dcutr: dcutr(),
     aminoDHT: kadDHT({
       protocol: '/ipfs/kad/1.0.0',
       peerInfoMapper: removePrivateAddressesMapper
     }),
     ping: ping(),
+    autoNAT: autoNAT(),
+    // Direct Connection Upgrade through Relay (DCUtR)
+    // allows two nodes to connect to each other who would otherwise be prevented doing so due to
+    // being behind NATed connections or firewalls.
+    dcutr: dcutr(),
+    // Add the circuit relay client service
+    relay: circuitRelayServer(),
   }
 }
 
