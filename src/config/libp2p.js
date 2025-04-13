@@ -1,18 +1,20 @@
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
-import { bootstrap } from '@libp2p/bootstrap'
+import { quic } from '@chainsafe/libp2p-quic'
 import { yamux } from '@chainsafe/libp2p-yamux'
+import { bootstrap } from '@libp2p/bootstrap'
+import { circuitRelayTransport } from '@libp2p/circuit-relay-v2'
 import { generateKeyPair } from '@libp2p/crypto/keys'
+import { dcutr } from '@libp2p/dcutr'
 import { identify } from '@libp2p/identify'
+import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
+import { ping } from '@libp2p/ping'
 import { tcp } from '@libp2p/tcp'
+import { webSockets } from '@libp2p/websockets'
 import { LevelBlockstore } from 'blockstore-level'
 import { createHelia } from 'helia'
 import { createLibp2p } from 'libp2p'
-import { webSockets } from '@libp2p/websockets'
-import { dcutr } from '@libp2p/dcutr'
-import { kadDHT } from '@libp2p/kad-dht'
-import { ping } from '@libp2p/ping'
 
 
 export const Libp2pOptions = {
@@ -48,17 +50,23 @@ export const Libp2pOptions = {
   },
   transports: [
     tcp(),
-    webSockets()
+    webSockets(),
+    // allows libp2p to function as a Circuit Relay server. This will not work in browsers.
+    circuitRelayTransport(),
+    quic()
   ],
   connectionEncrypters: [noise()],
   streamMuxers: [yamux()],
   services: {
     identify: identify(),
     pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+    // Direct Connection Upgrade through Relay (DCUtR)
+    // allows two nodes to connect to each other who would otherwise be prevented doing so due to
+    // being behind NATed connections or firewalls.
     dcutr: dcutr(),
     aminoDHT: kadDHT({
       protocol: '/ipfs/kad/1.0.0',
-      // TODO: peerInfoMapper: removePrivateAddressesMapper
+      peerInfoMapper: removePrivateAddressesMapper
     }),
     ping: ping(),
   }
