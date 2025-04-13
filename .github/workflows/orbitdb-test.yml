@@ -4,12 +4,19 @@ on:
   push:
   workflow_dispatch:
 
+env:
+  ORBITDB_ADDRESS: /orbitdb/zdpuAtC9rFwpYrjeoZF6oqdhMmDT6sooqWxYBqiZ3iZdbqfRN
+
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 100
 
     steps:
+      - name: Log envs
+        run: |
+          echo "ORBITDB_ADDRESS=$ORBITDB_ADDRESS"
+
       - uses: actions/checkout@v4
 
       - name: Setup Node.js

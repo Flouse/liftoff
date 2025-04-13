@@ -8,7 +8,7 @@ import { initIPFSInstance } from "./config/libp2p.js";
 const run = async () => {
   const ipfsDirectory = './data/ipfs-composed-test';
   const orbitdbDirectory = './data/orbitdb-composed';
-  const dbName = 'billboard-charts';
+  const dbName = 'billboard-charts-1965-2015';
 
   try {
     // Initialize IPFS
@@ -99,9 +99,9 @@ const run = async () => {
     console.log(allRecords.slice(-2));
     console.log('Number of records:', allRecords.length);
 
-    // sleep for 10 minutes
-    console.log('Sleeping for 10 minutes...');
-    await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
+    // sleep for 30 minutes
+    console.log('Sleeping for 30 minutes...');
+    await new Promise(resolve => setTimeout(resolve, 30 * 60 * 1000));
 
     console.log('Closing database and OrbitDB...');
     await db.close();
