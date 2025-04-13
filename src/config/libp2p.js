@@ -1,6 +1,6 @@
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
-// import { quic } from '@chainsafe/libp2p-quic'
+import { quic } from '@chainsafe/libp2p-quic'
 import { yamux } from '@chainsafe/libp2p-yamux'
 import { autoNAT } from '@libp2p/autonat'
 import { bootstrap } from '@libp2p/bootstrap'
@@ -12,7 +12,7 @@ import { kadDHT, removePrivateAddressesMapper } from '@libp2p/kad-dht'
 import { prefixLogger } from '@libp2p/logger'
 import { peerIdFromPrivateKey } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
-// import { tcp } from '@libp2p/tcp'
+import { tcp } from '@libp2p/tcp'
 import { webSockets } from '@libp2p/websockets'
 import { LevelBlockstore } from 'blockstore-level'
 import { createHelia } from 'helia'
@@ -48,17 +48,23 @@ export const Libp2pOptions = {
   ],
   addresses: {
     listen: [
-      '/ip4/0.0.0.0/tcp/0', '/ip4/0.0.0.0/tcp/0/ws', '/ip4/0.0.0.0/udp/0/quic'
+      '/ip4/0.0.0.0/tcp/0', '/ip4/0.0.0.0/tcp/0/ws', '/ip4/0.0.0.0/udp/0/quic',
+      // Discover a relay using the routing
+      //
+      // libp2p node will search the network for one relay with a free reservation slot.
+      // When it has found one and negotiated a relay reservation, the relayed address will appear
+      // in the output of `libp2p.getMultiaddrs()`.
+      //
+      // See https://github.com/libp2p/js-libp2p/blob/e4f603f51603810440d4/doc/CONFIGURATION.md#L414
+      '/p2p-circuit'
     ]
   },
   transports: [
     // allows libp2p to function as a Circuit Relay server. This will not work in browsers.
-    circuitRelayTransport({
-      discover: true
-    }),
+    circuitRelayTransport(),
     webSockets(), // ws needed to connect to relay
-    // tcp(),
-    // quic()
+    tcp(),
+    quic()
   ],
   connectionEncrypters: [noise()],
   streamMuxers: [yamux()],
@@ -75,8 +81,9 @@ export const Libp2pOptions = {
     // allows two nodes to connect to each other who would otherwise be prevented doing so due to
     // being behind NATed connections or firewalls.
     dcutr: dcutr(),
-    // Add the circuit relay client service
-    relay: circuitRelayServer(),
+    // TODO: allows libp2p to function as a Circuit Relay server. This will not work in browsers
+    // See https://github.com/libp2p/js-libp2p/blob/e4f603f51603810440d43e92718e666f164571bb/packages/transport-circuit-relay-v2/README.md#example---use-as-a-server
+    // circuitRelay: circuitRelayServer(),
   }
 }
 
