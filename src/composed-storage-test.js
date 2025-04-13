@@ -12,14 +12,14 @@ const run = async () => {
 
   try {
     // Initialize IPFS
-    const ipfs = await initIPFSInstance(ipfsDirectory); // TODO: init the peerId
-    console.log(`IPFS PeerId: ${ipfs.libp2p.peerId.toString()}`);
+    const heliaNode = await initIPFSInstance(ipfsDirectory); // TODO: init the peerId
+    console.log(`IPFS PeerId: ${heliaNode.libp2p.peerId.toString()}`);
 
-    const multiaddrs = ipfs.libp2p.getMultiaddrs();
+    const multiaddrs = heliaNode.libp2p.getMultiaddrs();
     console.log(`IPFS Multiaddrs: ${multiaddrs.map(ma => ma.toString()).join(', ')}`);
 
     // TODO: Create ComposedStorage
-    // const ipfsBlockStorage = new IPFSBlockStorage({ ipfs });
+    // const ipfsBlockStorage = new IPFSBlockStorage({ ipfs: helia });
     // const lruStorage = new LRUStorage();
     // const composedStorage = new ComposedStorage({
     //   stores: [
@@ -29,7 +29,7 @@ const run = async () => {
     // })
 
     // Create OrbitDB instance
-    const orbitdb = await createOrbitDB({ ipfs, directory: orbitdbDirectory });
+    const orbitdb = await createOrbitDB({ ipfs: heliaNode, directory: orbitdbDirectory });
 
     // Open database as a documents store
     const options = {
@@ -50,7 +50,7 @@ const run = async () => {
     const addr = parseAddress(db.address)
     const cid = CID.parse(addr.hash, base58btc)
     console.log('cid', cid.toString());
-    const value = await dagCbor(ipfs).get(cid);
+    const value = await dagCbor(heliaNode).get(cid);
     console.log('manifest', value);
 
     // Check if data already exists
@@ -85,8 +85,11 @@ const run = async () => {
     });
     
     setInterval(async () => {
+      const multiaddrs = heliaNode.libp2p.getMultiaddrs();
+      console.log(`IPFS Multiaddrs: ${multiaddrs.map(ma => ma.toString()).join(', ')}`);
+
       // print connections
-      const connections = ipfs.libp2p.getConnections();
+      const connections = heliaNode.libp2p.getConnections();
       console.log('Connections:', connections.map(conn => conn.remotePeer.toString()));
       console.log('Number of connections:', connections.length);
     }, 6000);
@@ -96,14 +99,14 @@ const run = async () => {
     console.log(allRecords.slice(-2));
     console.log('Number of records:', allRecords.length);
 
-    // sleep for 1 hour
-    console.log('Sleeping for 1 hour...');
-    await new Promise(resolve => setTimeout(resolve, 3600000));
+    // sleep for 10 minutes
+    console.log('Sleeping for 10 minutes...');
+    await new Promise(resolve => setTimeout(resolve, 10 * 60 * 1000));
 
     console.log('Closing database and OrbitDB...');
     await db.close();
     await orbitdb.stop();
-    await ipfs.stop();
+    await heliaNode.stop();
     console.log('Closed database and IPFS');
     process.exit(0);
   } catch (error) {
