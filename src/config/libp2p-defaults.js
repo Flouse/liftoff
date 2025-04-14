@@ -7,5 +7,14 @@ import { libp2pDefaults } from 'helia';
  */
 const defaults = libp2pDefaults();
 
-defaults.services.pubsub = gossipsub({ allowPublishToZeroTopicPeers: true });
+defaults.services.pubsub = gossipsub({
+  // Allow publishing even when no peers are subscribed
+  allowPublishToZeroTopicPeers: true,
+  // Ensure the peer receives its own messages
+  emitSelf: true,
+  scoreThresholds: {
+    // Set a very lenient graylist threshold
+    graylistThreshold: -80000000000
+  }
+});
 export default defaults;
