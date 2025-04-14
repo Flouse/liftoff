@@ -1,10 +1,11 @@
 import { dagCbor } from '@helia/dag-cbor';
+import { multiaddr } from '@multiformats/multiaddr';
 import { createOrbitDB, IPFSAccessController, parseAddress } from '@orbitdb/core';
 import 'dotenv/config';
+import { createHelia } from 'helia';
 import { base58btc } from 'multiformats/bases/base58';
 import { CID } from 'multiformats/cid';
 import libp2pDefaults from './config/libp2p-defaults.js';
-import { createHelia } from 'helia'
 
 const run = async () => {
   // const ipfsDirectory = './data/ipfs-composed-test';
@@ -19,16 +20,6 @@ const run = async () => {
 
     const multiaddrs = heliaNode.libp2p.getMultiaddrs();
     console.log(`IPFS Multiaddrs: ${multiaddrs.map(ma => ma.toString()).join(', ')}`);
-
-    // TODO: Create ComposedStorage
-    // const ipfsBlockStorage = new IPFSBlockStorage({ ipfs: helia });
-    // const lruStorage = new LRUStorage();
-    // const composedStorage = new ComposedStorage({
-    //   stores: [
-    //     ipfsBlockStorage,
-    //     lruStorage
-    //   ]
-    // })
 
     // Create OrbitDB instance
     const orbitdb = await createOrbitDB({ ipfs: heliaNode, directory: orbitdbDirectory });
@@ -67,16 +58,16 @@ const run = async () => {
       const billboardData = await response.json();
 
       // TODO: Add more records to the database
-      // const INDEX_BY = '_id';
-      // for (const record of billboardData) {
-      //   try {
-      //     record[INDEX_BY] = record.id + 1; // Set _id to id for OrbitDB index
-      //     await db.put(record);
-      //   } catch (e) {
-      //     console.error("error putting record", record, e)
-      //   }
-      // }
-      // console.log(`Added ${billboardData.length} records to the database`);
+      const INDEX_BY = '_id';
+      for (const record of billboardData) {
+        try {
+          record[INDEX_BY] = record.id + 1; // Set _id to id for OrbitDB index
+          await db.put(record);
+        } catch (e) {
+          console.error("error putting record", record, e)
+        }
+      }
+      console.log(`Added ${billboardData.length} records to the database`);
     } else {
       console.log('Database already contains data, skipping data insertion.');
     }
@@ -101,9 +92,9 @@ const run = async () => {
     console.log(allRecords.slice(-2));
     console.log('Number of records:', allRecords.length);
 
-    // sleep for 30 minutes
-    console.log('Sleeping for 30 minutes...');
-    await new Promise(resolve => setTimeout(resolve, 30 * 60 * 1000));
+    // sleep for 300 minutes
+    console.log('Sleeping for 300 minutes...');
+    await new Promise(resolve => setTimeout(resolve, 300 * 60 * 1000));
 
     console.log('Closing database and OrbitDB...');
     await db.close();
