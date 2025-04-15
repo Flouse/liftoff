@@ -24,23 +24,23 @@ jobs:
           node-version: 'lts/*'
       - run: npm ci
 
-      - name: Cache OrbitDB data
-        uses: actions/cache/restore@v4
-        id: orbitdb-cache
-        with:
-          path: |
-            ./data/ipfs-composed-test
-            ./data/orbitdb-composed
-          key: orbitdb-data-cache
+      # - name: Cache OrbitDB data
+      #   uses: actions/cache/restore@v4
+      #   id: orbitdb-cache
+      #   with:
+      #     path: |
+      #       ./data/ipfs-composed-test
+      #       ./data/orbitdb-composed
+      #     key: orbitdb-data-cache
 
       - name: Run test
         run: node src/composed-storage-test.js
 
-      - name: Save OrbitDB data (always)
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: |
-            ./data/ipfs-composed-test
-            ./data/orbitdb-composed
-          key: orbitdb-data-cache
+      # - name: Save OrbitDB data (always)
+      #   if: always()
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: |
+      #       ./data/ipfs-composed-test
+      #       ./data/orbitdb-composed
+      #     key: orbitdb-data-cache
