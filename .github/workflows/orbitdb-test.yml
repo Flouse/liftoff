@@ -3,6 +3,12 @@ name: OrbitDB Test
 on:
   push:
   workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
   # run every 6 hours
   schedule:
     - cron: '0 */6 * * *'
@@ -17,8 +23,9 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - macos-latest
-          - windows-latest
+          # TODO: Add macOS and Windows
+          # - macos-latest
+          # - windows-latest
         ipfs:
           - ^0.34.1
     runs-on: ${{ matrix.os }}
@@ -39,6 +46,19 @@ jobs:
         # ipfs cat ${{ steps.ipfs_setup.outputs.welcome_ref }}/readme
         curl -sX POST http://localhost:5001/api/v0/version | jq -e .
         curl -sX POST http://localhost:5001/api/v0/version | jq -e '(.Version=="${{ steps.ipfs_setup.outputs.resolved_ipfs_version }}")'
+    # Enable tmate debugging of manually-triggered workflows if the input option was provided
+    - name: Setup tmate session
+      # TODO: uncomment this `if` condition when merging into the default branch
+      # if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      #
+      # https://github.com/mxschmitt/action-tmate/releases/tag/v3.19
+      uses: mxschmitt/action-tmate@e5c7151931ca95bad1c6f4190c730ecf8c7dde48
+      with:
+        timeout-minutes: 60
+    - name: Wait for IPFS daemon
+      if: ${{ inputs.debug_enabled != true }}
+      run: sleep 3600
+      shell: bash
 
 
   test:
