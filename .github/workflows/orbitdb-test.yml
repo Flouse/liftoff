@@ -12,6 +12,35 @@ on:
 #   ORBITDB_ADDRESS: /orbitdb/zdpuAtC9rFwpYrjeoZF6oqdhMmDT6sooqWxYBqiZ3iZdbqfRN
 
 jobs:
+  setup-ipfs:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        ipfs:
+          - ^0.34.1
+    runs-on: ${{ matrix.os }}
+    name: Setup IPFS on ${{ matrix.os }} with IPFS ${{ matrix.ipfs }}
+    steps:
+    - name: Set up IPFS ${{ matrix.ipfs }}
+      # https://github.com/ibnesayeed/setup-ipfs/commits/c779340c110024feeb46579fef211c89332caf85
+      uses: ibnesayeed/setup-ipfs@c779340c110024feeb46579fef211c89332caf85
+      id: ipfs_setup
+      with:
+        ipfs_version: ${{ matrix.ipfs }}
+        run_daemon: true
+    - name: Test IPFS ${{ steps.ipfs_setup.outputs.resolved_ipfs_version }} CLI and API
+      shell: bash
+      run: |
+        set -o pipefail
+        # FIXME: Error: invalid path "/readme": path does not have enough components
+        # ipfs cat ${{ steps.ipfs_setup.outputs.welcome_ref }}/readme
+        curl -sX POST http://localhost:5001/api/v0/version | jq -e .
+        curl -sX POST http://localhost:5001/api/v0/version | jq -e '(.Version=="${{ steps.ipfs_setup.outputs.resolved_ipfs_version }}")'
+
+
   test:
     runs-on: ubuntu-latest
 
