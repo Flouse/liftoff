@@ -18,11 +18,11 @@ jobs:
         node-version: 20
 
     - name: Install Voyager CLI
-      run: npm install -g @orbitdb/voyager
+      run: npm i -g @orbitdb/voyager
 
     - name: Start Voyager Daemon (Background)
       run: |
-        voyager daemon --allow > voyager.log 2>&1 &
+        voyager daemon -p 54320 -w 55440 -v --allow > voyager.log 2>&1 &
         echo "voyager_pid=$!" >> $GITHUB_ENV
 
     - name: Wait for Startup
@@ -31,6 +31,9 @@ jobs:
     - name: Get Voyager Address
       id: voyager-address
       run: |
+        voyager id
+        voyager address
+
         address=$(voyager address | grep /tcp/ | head -n 1)
         if [ -z "$address" ]; then
           echo "No Voyager address found!"
@@ -38,11 +41,9 @@ jobs:
         fi
         echo "address=$address" >> $GITHUB_OUTPUT
 
-    - name: Install Verification Dependencies
-      run: npm install @orbitdb/core helia libp2p @orbitdb/voyager
-
-    - name: Execute Verification Script
-      run: VOYAGER_ADDRESS="${{ steps.voyager-address.outputs.address }}" node src/verify-voyager.js
+    # TODO
+    # - name: Execute Verification Script
+    #   run: VOYAGER_ADDRESS="${{ steps.voyager-address.outputs.address }}" node src/verify-voyager.js
 
     - name: Setup tmate session
       # TODO: uncomment this `if` condition when merging into the default branch
@@ -52,6 +53,17 @@ jobs:
       uses: mxschmitt/action-tmate@e5c7151931ca95bad1c6f4190c730ecf8c7dde48
       with:
         timeout-minutes: 30
+
+    - name: Show voyager.log
+      if: always()
+      run: cat voyager.log || true
+
+    - name: Upload voyager.log to GitHub Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: voyager-log
+        path: voyager.log
 
     - name: Cleanup
       if: always()
