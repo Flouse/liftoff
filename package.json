@@ -14,7 +14,6 @@
     "@chainsafe/libp2p-gossipsub": "^14.1.1",
     "@chainsafe/libp2p-noise": "^16.1.0",
     "@chainsafe/libp2p-quic": "^1.1.1",
-    "@chainsafe/libp2p-yamux": "^7.0.1",
     "@helia/dag-cbor": "^4.0.3",
     "@libp2p/kad-dht": "^14.2.3",
     "@orbitdb/core": "^2.5.0",
