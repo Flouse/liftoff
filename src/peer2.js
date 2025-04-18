@@ -26,7 +26,7 @@ const run = async () => {
     console.error("Error: VOYAGER_ADDRESS environment variable not set.")
   } else {
     console.log('Peer 2: Dialing voyager multiaddr:', voyagerAddress);
-    voyager = await Voyager({ orbitdb: orbitdb2, address: voyagerAddress })
+    voyager = await Voyager({ orbitdb: orbitdb2, address: multiaddr(voyagerAddress) })
   }
 
   // TOOD: remove this when voyager is ready

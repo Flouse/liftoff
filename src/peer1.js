@@ -2,6 +2,7 @@ import { createOrbitDB } from '@orbitdb/core'
 import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
 import { Voyager } from '@orbitdb/voyager'
+import { multiaddr } from '@multiformats/multiaddr'
 
 const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
@@ -18,7 +19,7 @@ const run = async () => {
     console.error("Error: VOYAGER_ADDRESS environment variable not set.")
   } else {
     console.log('Peer 1: Dialing voyager multiaddr:', voyagerAddress);
-    voyager = await Voyager({ orbitdb: orbitdb1, address: voyagerAddress })
+    voyager = await Voyager({ orbitdb: orbitdb1, address: multiaddr(voyagerAddress) })
   }
 
   // create a db and add it to voyager
@@ -46,14 +47,14 @@ const run = async () => {
   console.log('Peer 1 is active and ready for connections...')
 
   // Keep the process running for 10 seconds, then close
-  // setTimeout(async () => {
-  //   console.log('Peer 1: Closing database and stopping services...')
-  //   await db1.close()
-  //   await orbitdb1.stop()
-  //   await ipfs1.stop()
-  //   console.log('Peer 1: Done.')
-  //   process.exit(0)
-  // }, 10000)
+  setTimeout(async () => {
+    console.log('Peer 1: Closing database and stopping services...')
+    await db1.close()
+    await orbitdb1.stop()
+    await ipfs1.stop()
+    console.log('Peer 1: Done.')
+    process.exit(0)
+  }, 10000)
 }
 
 run().catch((e) => {
