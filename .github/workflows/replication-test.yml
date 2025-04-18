@@ -52,11 +52,6 @@ jobs:
       env:
         VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
       run: node src/peer1.js
-
-    # TODO: remove this
-    - name: Wait for Peer 1 to start
-      run: sleep 5
-
     - name: Start Peer 2
       env:
         VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
