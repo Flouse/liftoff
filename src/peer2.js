@@ -1,20 +1,18 @@
+import { logger } from '@libp2p/logger'
 import { multiaddr } from '@multiformats/multiaddr'
 import { createOrbitDB } from '@orbitdb/core'
-import { Voyager } from '@orbitdb/voyager'
 import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
-import { promisify } from "util";
+
+// Setup logger
+const log = logger('peer2')
 
 // const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
 
 const run = async () => {
-  // Read the multiaddr from file
-  // const peer1MultiaddrString = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
-  // console.log(`Peer 2: Read peer1 multiaddr string from ${PEER1_MULTIADDR_FILE}: ${peer1MultiaddrString}`)
-
   const peer1DbAddress = fs.readFileSync(PEER1_DB_ADDRESS_FILE, 'utf8').trim()
-  console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
+  log('Read peer1 db address from %s: %s', PEER1_DB_ADDRESS_FILE, peer1DbAddress)
 
   const ipfs2 = await initIPFSInstance('./data/ipfs12')
   const directory = `./data/orbitdb-${Date.now()}`
@@ -22,25 +20,20 @@ const run = async () => {
 
   // connect to voyager
   const voyagerAddress = process.env.VOYAGER_ADDRESS
-  let voyager = undefined
   if (!voyagerAddress) {
-    console.error("Error: VOYAGER_ADDRESS environment variable not set.")
+    log.error('Error: VOYAGER_ADDRESS environment variable not set.')
   } else {
-    console.log('Peer 2: Dialing voyager multiaddr:', voyagerAddress);
-    voyager = await Voyager({ orbitdb: orbitdb2, address: multiaddr(voyagerAddress) })
-
-    // TODO: Wait for the connection to be established
-    console.log('Peer 2: Waiting 5 seconds for Voyager connection to establish...');
-    await new promisify(setTimeout)(5000);
+    log('Dialing voyager multiaddr: %s', voyagerAddress)
+    ipfs2.libp2p.dial(multiaddr(voyagerAddress))
   }
 
-  console.log('Peer 2: Opening database...');
+  log('Opening database...')
   const db2 = await orbitdb2.open(peer1DbAddress)
 
   let db2Updated = false
   db2.events.on('update', async (entry) => {
     db2Updated = true
-    console.log('Peer 2: Database updated', entry)
+    log('Database updated', entry)
   })
 
   // Wait for the database to update, with a timeout
@@ -59,15 +52,15 @@ const run = async () => {
   })
 
   // Print out the above records.
-  console.log('Retrieving all records from Peer2...')
+  log('Retrieving all records from Peer2...')
   const allRecords = await db2.all()
-  console.log(allRecords)
+  log('All records:', allRecords)
 
-  console.log('Peer 2: Replication successful!')
+  log('Replication successful!')
   process.exit(0)
 }
 
 run().catch((e) => {
-  console.error(e)
+  log.error(e)
   process.exit(1)
 })

@@ -31,7 +31,7 @@ jobs:
 
     - name: Start Voyager Daemon (Background)
       run: |
-        npx voyager daemon -p 54320 -w 55440 -v --allow > voyager.log 2>&1 &
+       DEBUG=* npx voyager daemon -p 54320 -w 55440 -v --allow | tee voyager.log &
         echo "Wait for Voyager to start" && sleep 15
     - name: Get Voyager Address
       id: voyager-address
@@ -49,8 +49,8 @@ jobs:
     - name: Start Peer 1
       env:
         VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
-      run: node src/peer1.js
+      run: DEBUG=* node src/peer1.js
     - name: Start Peer 2
       env:
         VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
-      run: node src/peer2.js
+      run: DEBUG=* node src/peer2.js
