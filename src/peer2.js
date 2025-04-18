@@ -1,16 +1,16 @@
 import { multiaddr } from '@multiformats/multiaddr'
 import { createOrbitDB } from '@orbitdb/core'
+import { Voyager } from '@orbitdb/voyager'
 import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
-import { Voyager } from '@orbitdb/voyager'
 
-const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
+// const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
 
 const run = async () => {
   // Read the multiaddr from file
-  const peer1MultiaddrString = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
-  console.log(`Peer 2: Read peer1 multiaddr string from ${PEER1_MULTIADDR_FILE}: ${peer1MultiaddrString}`)
+  // const peer1MultiaddrString = fs.readFileSync(PEER1_MULTIADDR_FILE, 'utf8').trim().split('\n')[0]
+  // console.log(`Peer 2: Read peer1 multiaddr string from ${PEER1_MULTIADDR_FILE}: ${peer1MultiaddrString}`)
 
   const peer1DbAddress = fs.readFileSync(PEER1_DB_ADDRESS_FILE, 'utf8').trim()
   console.log(`Peer 2: Read peer1 db address from ${PEER1_DB_ADDRESS_FILE}: ${peer1DbAddress}`)
@@ -27,16 +27,6 @@ const run = async () => {
   } else {
     console.log('Peer 2: Dialing voyager multiaddr:', voyagerAddress);
     voyager = await Voyager({ orbitdb: orbitdb2, address: multiaddr(voyagerAddress) })
-  }
-
-  // TOOD: remove this when voyager is ready
-  try {
-    const peer1Multiaddr = multiaddr(peer1MultiaddrString)
-    console.log('Peer 2: Dialing peer 1 multiaddr:', peer1Multiaddr.toString());
-    await ipfs2.libp2p.dial(peer1Multiaddr)
-  } catch (err) {
-    console.error('Peer 2: Error dialing peer 1:', err)
-    process.exit(1)
   }
 
   const db2 = await orbitdb2.open(peer1DbAddress)
