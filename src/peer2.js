@@ -2,6 +2,7 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { createOrbitDB } from '@orbitdb/core'
 import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
+import { Voyager } from '@orbitdb/voyager'
 
 const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
@@ -18,6 +19,17 @@ const run = async () => {
   const directory = `./data/orbitdb-${Date.now()}`
   const orbitdb2 = await createOrbitDB({ ipfs: ipfs2, id: 'peer2', directory })
 
+  // connect to voyager
+  const voyagerAddress = process.env.VOYAGER_ADDRESS
+  let voyager = undefined
+  if (!voyagerAddress) {
+    console.error("Error: VOYAGER_ADDRESS environment variable not set.")
+  } else {
+    console.log('Peer 2: Dialing voyager multiaddr:', voyagerMultiaddr.toString());
+    voyager = await Voyager({ orbitdb: orbitdb2, address: voyagerAddress })
+  }
+
+  // TOOD: remove this when voyager is ready
   try {
     const peer1Multiaddr = multiaddr(peer1MultiaddrString)
     console.log('Peer 2: Dialing peer 1 multiaddr:', peer1Multiaddr.toString());

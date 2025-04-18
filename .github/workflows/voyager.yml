@@ -2,7 +2,7 @@
 name: Voyager
 
 on:
-  push:
+  # push:
 
 jobs:
   deploy-and-verify:

@@ -1,6 +1,7 @@
 name: OrbitDB Replication Tests
 
 on:
+  push:
   pull_request:
     branches: [ dev ]
 
@@ -20,15 +21,43 @@ jobs:
   multi-peer-replication-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-      - name: Install Dependencies
-        run: npm ci
-      - name: Start Peer 1
-        run: node src/peer1.js &
-      - name: Wait for Peer 1 to start
-        run: sleep 5
-      - name: Start Peer 2
-        run: node src/peer2.js
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 'lts/*'
+
+    - name: Install Voyager CLI
+      run: npm i -g @orbitdb/voyager
+    - name: Start Voyager Daemon (Background)
+      run: |
+        voyager daemon -p 54320 -w 55440 -v --allow > voyager.log 2>&1 &
+        echo "Wait for Voyager to start" && sleep 15
+    - name: Get Voyager Address
+      id: voyager-address
+      run: |
+        voyager id
+        voyager address
+
+        address=$(voyager address | grep /tcp/ | head -n 1)
+        if [ -z "$address" ]; then
+          echo "No Voyager address found!"
+          exit 1
+        fi
+        echo "address=$address" >> $GITHUB_OUTPUT
+  
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Start Peer 1
+      env:
+        VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
+      run: node src/peer1.js
+
+    # TODO: remove this
+    - name: Wait for Peer 1 to start
+      run: sleep 5
+
+    - name: Start Peer 2
+      env:
+        VOYAGER_ADDRESS: ${{ steps.voyager-address.outputs.address }}
+      run: node src/peer2.js
