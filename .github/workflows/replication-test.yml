@@ -36,10 +36,10 @@ jobs:
     - name: Get Voyager Address
       id: voyager-address
       run: |
-        voyager id
-        voyager address
+        npx voyager id
+        npx voyager address
 
-        address=$(voyager address | grep /tcp/ | head -n 1)
+        address=$(npx voyager address | grep /tcp/ | head -n 1)
         if [ -z "$address" ]; then
           echo "No Voyager address found!"
           exit 1
