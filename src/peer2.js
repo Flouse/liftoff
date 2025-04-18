@@ -3,6 +3,7 @@ import { createOrbitDB } from '@orbitdb/core'
 import { Voyager } from '@orbitdb/voyager'
 import fs from 'fs'
 import { initIPFSInstance } from './config/libp2p.js'
+import { promisify } from "util";
 
 // const PEER1_MULTIADDR_FILE = 'peer1.multiaddr'
 const PEER1_DB_ADDRESS_FILE = 'peer1.dbaddress'
@@ -27,8 +28,13 @@ const run = async () => {
   } else {
     console.log('Peer 2: Dialing voyager multiaddr:', voyagerAddress);
     voyager = await Voyager({ orbitdb: orbitdb2, address: multiaddr(voyagerAddress) })
+
+    // TODO: Wait for the connection to be established
+    console.log('Peer 2: Waiting 5 seconds for Voyager connection to establish...');
+    await new promisify(setTimeout)(5000);
   }
 
+  console.log('Peer 2: Opening database...');
   const db2 = await orbitdb2.open(peer1DbAddress)
 
   let db2Updated = false
