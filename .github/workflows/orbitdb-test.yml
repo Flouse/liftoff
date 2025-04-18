@@ -1,17 +1,70 @@
 name: OrbitDB Test
 
 on:
-  push:
   workflow_dispatch:
-  # run every 6 hours
-  schedule:
-    - cron: '0 */6 * * *'
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+  # TODO: run every 6 hours
+  # schedule:
+  # - cron: '0 */6 * * *'
 
 # TODO:
 # env:
 #   ORBITDB_ADDRESS: /orbitdb/zdpuAtC9rFwpYrjeoZF6oqdhMmDT6sooqWxYBqiZ3iZdbqfRN
 
 jobs:
+  setup-ipfs:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          # TODO: Add macOS and Windows
+          # - macos-latest
+          # - windows-latest
+        ipfs:
+          - ^0.34.1
+    runs-on: ${{ matrix.os }}
+    name: Setup IPFS on ${{ matrix.os }} with IPFS ${{ matrix.ipfs }}
+    steps:
+    - name: Set up IPFS ${{ matrix.ipfs }}
+      # https://github.com/ibnesayeed/setup-ipfs/commits/c779340c110024feeb46579fef211c89332caf85
+      uses: ibnesayeed/setup-ipfs@c779340c110024feeb46579fef211c89332caf85
+      id: ipfs_setup
+      with:
+        ipfs_version: ${{ matrix.ipfs }}
+        run_daemon: true
+    - name: Test IPFS ${{ steps.ipfs_setup.outputs.resolved_ipfs_version }} CLI and API
+      shell: bash
+      run: |
+        set -o pipefail
+        # FIXME: Error: invalid path "/readme": path does not have enough components
+        # ipfs cat ${{ steps.ipfs_setup.outputs.welcome_ref }}/readme
+        curl -sX POST http://localhost:5001/api/v0/version | jq -e .
+        curl -sX POST http://localhost:5001/api/v0/version | jq -e '(.Version=="${{ steps.ipfs_setup.outputs.resolved_ipfs_version }}")'
+    
+    - name: Test IPFS file retrieval with 'ipfs get'
+      shell: bash
+      run: ipfs get bafybeifaimvnz2fi5duvcetbrqaj3ftt4lgt3rnnv56npt6svlh3czbewa
+    
+    # Enable tmate debugging of manually-triggered workflows if the input option was provided
+    - name: Setup tmate session
+      # TODO: uncomment this `if` condition when merging into the default branch
+      # if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      #
+      # https://github.com/mxschmitt/action-tmate/releases/tag/v3.19
+      uses: mxschmitt/action-tmate@e5c7151931ca95bad1c6f4190c730ecf8c7dde48
+      with:
+        timeout-minutes: 60
+    - name: Wait for IPFS daemon
+      if: ${{ inputs.debug_enabled != true }}
+      run: sleep 3600
+      shell: bash
+
+
   test:
     runs-on: ubuntu-latest
 

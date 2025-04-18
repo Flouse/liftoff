@@ -1,0 +1,70 @@
+# https://github.com/orbitdb/voyager
+name: Voyager
+
+on:
+  # push:
+
+jobs:
+  deploy-and-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Voyager CLI
+      run: npm i -g @orbitdb/voyager
+
+    - name: Start Voyager Daemon (Background)
+      run: |
+        voyager daemon -p 54320 -w 55440 -v --allow > voyager.log 2>&1 &
+        echo "voyager_pid=$!" >> $GITHUB_ENV
+
+    - name: Wait for Startup
+      run: sleep 15
+
+    - name: Get Voyager Address
+      id: voyager-address
+      run: |
+        voyager id
+        voyager address
+
+        address=$(voyager address | grep /tcp/ | head -n 1)
+        if [ -z "$address" ]; then
+          echo "No Voyager address found!"
+          exit 1
+        fi
+        echo "address=$address" >> $GITHUB_OUTPUT
+
+    # TODO
+    # - name: Execute Verification Script
+    #   run: VOYAGER_ADDRESS="${{ steps.voyager-address.outputs.address }}" node src/verify-voyager.js
+
+    - name: Setup tmate session
+      # TODO: uncomment this `if` condition when merging into the default branch
+      # if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+      #
+      # https://github.com/mxschmitt/action-tmate/releases/tag/v3.19
+      uses: mxschmitt/action-tmate@e5c7151931ca95bad1c6f4190c730ecf8c7dde48
+      with:
+        timeout-minutes: 30
+
+    - name: Show voyager.log
+      if: always()
+      run: cat voyager.log || true
+
+    - name: Upload voyager.log to GitHub Artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: voyager-log
+        path: voyager.log
+
+    - name: Cleanup
+      if: always()
+      run: kill "${{ env.voyager_pid }}"
